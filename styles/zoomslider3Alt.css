@@ -1,0 +1,154 @@
+#map_zoom_slider {
+	top:236px; !important;
+  left:70px;
+}
+
+
+
+#map .esriScalebarLabel {
+	 font-family:Gill Sans, Helvetica, sans-serif;
+	 font-style: normal;
+}
+
+.esriLargeSliderVertical {
+	/*height:35%;*/
+	height:160px;
+}
+
+body.tundra.dijitSliderImageHandleV {
+	width: 12px;
+	height: 12px;
+	color: black;
+}
+
+.dijitSliderBarContainerV {
+opacity: .8;
+width:18px;
+    background-color: #bfbfbf;
+    height: 100%;
+    z-index: 1;
+}
+
+.dijitSliderProgressBarV{
+border-radius: 5px 5px 5px 5px;
+box-shadow: 5px 5px 6px #888888;
+
+}
+.dijitSliderRemainingBarV{
+box-shadow: 5px 5px 6px #888888;
+border-radius: 5px 5px 5px 5px;
+
+}
+.tundra .dijitSliderBottomBumper {
+opacity: .4;
+    border-bottom-width: 0px;
+    border-color: #aab0bb;
+    background: #c0c2c5;
+    background-color: #bfbfbf;
+    width:17px
+    z-index:99;
+}
+.tundra .dijitSliderTopBumper {
+opacity: .4;
+    border-top-width: 0px;
+    border-color: #aab0bb;
+    background: #c0c2c5;
+    background-color: #bfbfbf;
+    width:18px
+    z-index:99;
+}
+.tundra .dijitSliderBumperV {
+opacity: .4;
+    width: 18px;
+    height: 5px;
+    border-width: 0px 0px;
+    z-index:99;
+}
+
+
+
+
+
+
+ 
+
+.tundra .dijitSliderDecrementIconV {
+    background-position: 0px -3px !important;
+    z-index:100;
+
+}
+
+.tundra .dijitSliderIncrementIconV {
+
+   background-position: 0px 3px  !important;
+   z-index:100;
+}
+
+
+.tundra .dijitSliderButtonContainer {
+    
+   width:15px
+        height:12px;
+text-align: center;
+height: 0;
+}
+
+
+.dijitSliderIncrementIconV {
+    top:5px;
+    left:10px;
+ float:right;
+    background-color: #bfbfbf;
+    cursor: pointer;
+    vertical-align:center;
+    background-image:url("http://js.arcgis.com/3.7/js/dojo/dijit/themes/tundra/images/plusButton.gif") !important ;  
+    width: 15px !important;
+    height: 12px;
+
+}
+
+.dijitSliderDecrementIconV {
+float:right;
+    left:10px;
+    background-color: #bfbfbf;
+    cursor: pointer;
+    background-image:url("http://js.arcgis.com/3.7/js/dojo/dijit/themes/tundra/images/minusButton.gif") !important; 
+    background-repeat: no-repeat;
+    width: 15px !important;
+    height: 12px;
+
+}
+.dijitReset.dijitSliderH.sliderOpacity2.dijitSlider{
+background-color: white;
+}
+.dijitReset.dijitSliderV.esriLargeSlider.esriLargeSliderVertical.esriLargeSliderTL.dijitSlider{
+box-shadow: 5px 5px 6px #888888;
+background-color: #bfbfbf;
+border-radius: 5px 5px 5px 5px;
+border-width: 0px 0px;
+
+}
+
+.tundra  .dijitSliderFocused, .tundra .dijitSliderFocused .dijitSliderBottomBumper {
+background: #bfbfbf;
+  
+
+}
+
+
+.tundra .dijitRuleContainerV {
+    border-top-width: 21px;
+    height: 100%;
+    position: relative;
+    line-height: 0;
+    float:left;
+    text-align: left;
+    background-color: #bfbfbf;
+
+}
+
+
+
+
+
+
