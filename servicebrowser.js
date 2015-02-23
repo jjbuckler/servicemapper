@@ -61,7 +61,7 @@ require([
  ],
    function(dom, query,  on,  domConstruct, lang, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
 	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Extent, Identify, Print, 
-	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, TabContainer,identify,esriRquest,FloatingPane, xhr,ComboBox){
+	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
 		
 		
@@ -89,29 +89,57 @@ require([
       "callbackParamName": "callback"
     });
     		servicesRequest.then(main_servicesSucceeded, main_servicesFailed); */
-app,services = [];
-    var layersRequest = esri.request({
+app.services = {items:[]}
+    var serviceRequest = esri.request({
   url: "http://gis.ers.usda.gov/arcgis/rest/services",
   content: { f: "json" },
   handleAs: "json",
   callbackParamName: "callback"
 });
-layersRequest.then(
+serviceRequest.then(
   function(response) {
-  	 for (var l=0, im=response.length; l<im; l++){
-  app.services.push(response.services[l].name)};
-  console.log(app.services)
+	
+  	 for (var l=0, im=response.services.length; l<im; l++){
+		// console.log(response.services[l].name);
+//app.services.push(response.services[l].name);
+  app.services.items.push(lang.mixin({id: response.services[l].id}, lang.mixin({name: response.services[l].name})));
+	}
+	console.log(app.services);
+	    		 var stateStore = new Memory({
+        data: app.services
+    }); 
+
+      var comboBox = new ComboBox({
+        id: "serviceSelect",
+        name: "services",
+				value:"background_cache",
+        store: stateStore
+    }, "serviceSelect");
+		
+		comboBox.on("change",function(){
+		
+		app.layers = {items:[]}
+    var layersRequest = esri.request({
+  url: "http://gis.ers.usda.gov/arcgis/rest/services/" + this.value + "/MapServer",
+  content: { f: "json" },
+  handleAs: "json",
+  callbackParamName: "callback"
+});
+		layersRequest.then(function(response){
+		console.log(response);
+		
+		}, function(error) {
+		console.log("Error: ", error.message);
+		});
+		
+		
+		});
+		comboBox.startup();
+ // console.log(response)
+
+	
 }, function(error) {
     console.log("Error: ", error.message);
 });
-    
-		 var stateStore = new Memory({
-        data: app.services
-    });
 
-    var comboBox = new ComboBox({
-        id: "serviceSelect",
-        store: stateStore
-    }, "serviceSelect");
-    comboBox.startup
 });
