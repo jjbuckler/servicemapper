@@ -14,8 +14,8 @@
     <![endif]-->
     
     <!--[if !IE]><!-->
-	    <link rel = "Stylesheet" href="Styles/FA_dm6AltColorCopy.css"  type="text/css" />
-      <link rel = "Stylesheet" href="Styles/zoomslider3AltColor.css" type="text/css" /> 	   
+	    <link rel = "Stylesheet" href="styles/FA_dm6AltColorCopy.css"  type="text/css" />
+      <link rel = "Stylesheet" href="styles/zoomslider3AltColor.css" type="text/css" /> 	   
     <!--<![endif]-->
 	  <script src="http://js.arcgis.com/3.10/" type="text/javascript"></script>
   <script src="servicebrowser.js" type="text/javascript"></script> 
@@ -27,6 +27,8 @@
 
 </head>
 <body class="tundra" height="600" width="988">
-
+<div id="map"></div>
+<input id="serviceSelect">
+<p><button onClick="alert(dijit.byId('serviceSelect').get('value'))">Get value</button></p>
 </body>
 </html>

@@ -55,12 +55,13 @@ require([
 		 "esri/tasks/identify",
 		 "esri/request",
 		 "dojox/layout/FloatingPane",
+		 "dijit/form/ComboBox",
 		 "dojo/request/xhr",
   "dojo/domReady!"
  ],
    function(dom, query,  on,  domConstruct, lang, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
 	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Extent, Identify, Print, 
-	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, TabContainer,identify,esriRquest,FloatingPane, xhr){
+	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, TabContainer,identify,esriRquest,FloatingPane, xhr,ComboBox){
 		var node
 		
 		
@@ -88,6 +89,7 @@ require([
       "callbackParamName": "callback"
     });
     		servicesRequest.then(main_servicesSucceeded, main_servicesFailed); */
+app,services = [];
     var layersRequest = esri.request({
   url: "http://gis.ers.usda.gov/arcgis/rest/services",
   content: { f: "json" },
@@ -96,12 +98,20 @@ require([
 });
 layersRequest.then(
   function(response) {
-    console.log("Success: ", response);
+  	 for (var l=0, im=response.length; l<im; l++){
+  app.services.push(response.services[l].name)};
+  console.log(app.services)
 }, function(error) {
     console.log("Error: ", error.message);
 });
     
-		
-		
-		
-	});
+		 var stateStore = new Memory({
+        data: app.services
+    });
+
+    var comboBox = new ComboBox({
+        id: "serviceSelect",
+        store: stateStore
+    }, "serviceSelect");
+    comboBox.startup
+});
