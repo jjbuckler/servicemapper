@@ -89,6 +89,10 @@ require([
       "callbackParamName": "callback"
     });
     		servicesRequest.then(main_servicesSucceeded, main_servicesFailed); */
+				   var lcomboBox = new ComboBox({
+        id: "layerSelect",
+        name: "layers",
+    }, "layerSelect").startup();
 app.services = {items:[]}
     var serviceRequest = esri.request({
   url: "http://gis.ers.usda.gov/arcgis/rest/services",
@@ -133,12 +137,9 @@ for (var l=0, im=response.layers.length; l<im; l++){
 		 var layerStore = new Memory({
         data: app.layers
     }); 
-
-      var comboBox = new ComboBox({
-        id: "layerSelect",
-        name: "layers",
-        store: layerStore
-    }, "layerSelect").startup();
+		var box = dijit.byId("layerSelect");
+box.store=layerStore;
+   
 		}, function(error) {
 		console.log("Error: ", error.message);
 		});
