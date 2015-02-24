@@ -127,8 +127,8 @@ serviceRequest.then(
 });
 		layersRequest.then(function(response){
 //		console.log(response);
-for (var l=0, im=response.layers.length; l<im; l++){
-	 app.layers.items.push(lang.mixin({id: response.layers[l].id}, lang.mixin({name: response.layers[l].name})));
+for (var l=0, im=response.services.length; l<im; l++){
+	 app.layers.items.push(lang.mixin({id: response.services[l].id}, lang.mixin({name: response.services[l].name})));
 }		
 		 var layerStore = new Memory({
         data: app.layers
@@ -137,7 +137,7 @@ for (var l=0, im=response.layers.length; l<im; l++){
       var comboBox = new ComboBox({
         id: "layerSelect",
         name: "layers",
-        store: layerStore
+        store: stateStore
     }, "layerSelect").startup();
 		}, function(error) {
 		console.log("Error: ", error.message);
