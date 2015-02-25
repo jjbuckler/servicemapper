@@ -99,7 +99,8 @@ var infoWindow = new esri.dijit.InfoWindow({
 				   var lcomboBox = new ComboBox({
         id: "layerSelect",
         name: "layers",
-				value:"--select--"
+				value:"--select--",
+				style:{width:"450px"}
     }, "layerSelect")
 		
 		
