@@ -51,6 +51,8 @@ require([
 	 "esri/dijit/InfoWindow",
 	"esri/symbols/SimpleMarkerSymbol",
 	"esri/symbols/SimpleLineSymbol",
+	"esri/layers/FeatureLayer",
+        "esri/InfoTemplate",
 		"dijit/layout/TabContainer",
 		 "esri/tasks/identify",
 		 "esri/request",
@@ -61,38 +63,72 @@ require([
  ],
    function(dom, query,  on,  domConstruct, lang, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
 	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Extent, Identify, Print, 
-	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
+	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, infoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
+		parser.parse();
+			var ext = new esri.geometry.Extent({
+			"xmin" : -2500000,
+			"ymin" : 130000,
+			"xmax" : 2400000,
+			"ymax" : 3700000,
+			"spatialReference" : {
+				"wkid" : 102039
+			}
+		});
+var infoWindow = new esri.dijit.InfoWindow({
+			anchor : esri.dijit.InfoWindow.ANCHOR_LOWERRIGHT
+		}, dojo.create("div"));
+
+	infoWindow.startup();
+
+	app.map = new esri.Map("map", {
+			extent : ext,
+			infoWindow : infoWindow,
+			sliderStyle : "small",
+			showAttribution : false,
+			logo : false,
+			navigationMode : "classic"
+		});
+					
+						app.tiled = new esri.layers.ArcGISTiledMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/background_cache/MapServer", {
+				"id" : "background"
+			});
+			app.map.addLayer(app.tiled);
 		
-		
-				/*	 var infoWindow = new esri.dijit.InfoWindow({
-															anchor: esri.dijit.InfoWindow.ANCHOR_LOWERRIGHT
-															}, dojo.create("div"));
-          
-													 
-						infoWindow.startup(); 
-				
-					app.map = new esri.Map("map", {   
-								sliderStyle: "small",
-								showAttribution: false,
-								logo: false
-					}); */
-			/*get the main service list	*/	
-			//esriConfig.defaults.io.alwaysUseProxy = true;
-		//esri.config.defaults.io.proxyUrl = "http://gis.ers.usda.gov/DotNet/proxy.ashx"
-	/*				  var servicesRequest = 
-		esriRequest({
-      "url": "http://gis.ers.usda.gov/arcgis/rest/services",
-      "content": {
-        "f": "json"
-      },
-      "callbackParamName": "callback"
-    });
-    		servicesRequest.then(main_servicesSucceeded, main_servicesFailed); */
+
 				   var lcomboBox = new ComboBox({
         id: "layerSelect",
         name: "layers",
-    }, "layerSelect").startup();
+				value:"--select--"
+    }, "layerSelect")
+		
+		
+		lcomboBox.on("change", function(event){
+		//console.log(event);
+		var id = lcomboBox.item.id;
+		var sName= dijit.byId("serviceSelect").item.name;
+		      var featureLayer = new FeatureLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer/" + id, {
+					id:"flayer",
+          mode: FeatureLayer.MODE_SNAPSHOT,
+          outFields: ["*"],
+          infoTemplate: infoTemplate
+        });
+				console.log(app.map.graphicsLayerIds);
+				console.log(app.map.layerIds);
+			//	console.log(app.map.getGraphicLayer("flayer"));
+				if(app.map.graphicsLayerIds.indexOf("flayer")==-1){
+					app.map.addLayer(featureLayer,{"id": "flayer"});
+				}
+				else{
+		app.map.removeLayer(app.map.getLayer("flayer"))
+		app.map.addLayer(featureLayer,{"id": "flayer"});
+		}
+		});
+		lcomboBox.startup();
+		
+		
+		
+		
 app.services = {items:[]}
     var serviceRequest = esri.request({
   url: "http://gis.ers.usda.gov/arcgis/rest/services",
@@ -108,7 +144,6 @@ serviceRequest.then(
 //app.services.push(response.services[l].name);
   app.services.items.push(lang.mixin({id: response.services[l].id}, lang.mixin({name: response.services[l].name})));
 	}
-	console.log(app.services);
 	    		 var stateStore = new Memory({
         data: app.services
     }); 
