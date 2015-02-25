@@ -43,6 +43,7 @@ require([
   "dojo/request",
   "esri/map",
   "esri/dijit/Scalebar",
+	 "esri/dijit/Legend",
   "esri/geometry/Extent",
   "esri/tasks/identify",
   "esri/dijit/Print",
@@ -62,7 +63,7 @@ require([
   "dojo/domReady!"
  ],
    function(dom, query,  on,  domConstruct, lang, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
-	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Extent, Identify, Print, 
+	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, Print, 
 	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, infoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
 		parser.parse();
@@ -89,7 +90,12 @@ var infoWindow = new esri.dijit.InfoWindow({
 			logo : false,
 			navigationMode : "classic"
 		});
-					
+					 var legendDijit = new Legend({
+            map: map
+          }, "ltab");
+          legendDijit.startup();
+        
+    
 						app.tiled = new esri.layers.ArcGISTiledMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/background_cache/MapServer", {
 				"id" : "background"
 			});
