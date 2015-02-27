@@ -16,7 +16,8 @@ require([
 "dojo/query",	
   "dojo/on" ,
   "dojo/dom-construct", 
-  "dojo/_base/lang", 
+  "dojo/_base/lang",
+"dojo/_base/array",
   "dojo/on", 
   "dojo/dom-class",
   "dojo/_base/json", 
@@ -62,7 +63,7 @@ require([
 		 "dojo/request/xhr",
   "dojo/domReady!"
  ],
-   function(dom, query,  on,  domConstruct, lang, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
+   function(dom, query,  on,  domConstruct, lang,arrayUtils, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
 	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, Print, 
 	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, infoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
@@ -84,16 +85,33 @@ var infoWindow = new esri.dijit.InfoWindow({
 
 	app.map = new esri.Map("map", {
 			extent : ext,
-			infoWindow : infoWindow,
 			sliderStyle : "small",
 			showAttribution : false,
 			logo : false,
 			navigationMode : "classic"
 		});
+		
 					 var legendDijit = new Legend({
-            map: map
-          }, "ltab");
+            map: app.map
+          }, "legendDiv");
           legendDijit.startup();
+					
+					//var legendDijit
+					 app.map.on("layer-add", function (evt) {
+					 console.log("here");
+       /* var layerInfo = arrayUtils.map(evt.layers, function (layer, index) {
+          return {layer:layer.layer, title:layer.layer.name};
+        });
+				console.log(layerInfo);
+        if (layerInfo.length > 0) {
+         var legendDijit = new Legend({
+            map: app.map,
+            layerInfos: layerInfo
+          }, "legendDiv");
+          legendDijit.startup();
+        } */
+      });
+
         
     
 						app.tiled = new esri.layers.ArcGISTiledMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/background_cache/MapServer", {
@@ -125,10 +143,12 @@ var infoWindow = new esri.dijit.InfoWindow({
 			//	console.log(app.map.getGraphicLayer("flayer"));
 				if(app.map.graphicsLayerIds.indexOf("flayer")==-1){
 					app.map.addLayer(featureLayer,{"id": "flayer"});
+					dijit.byId("legendDiv").refresh();
 				}
 				else{
 		app.map.removeLayer(app.map.getLayer("flayer"))
 		app.map.addLayer(featureLayer,{"id": "flayer"});
+			//legendDijit.refresh();
 		}
 		});
 		lcomboBox.startup();
@@ -149,7 +169,9 @@ serviceRequest.then(
   	 for (var l=0, im=response.services.length; l<im; l++){
 		// console.log(response.services[l].name);
 //app.services.push(response.services[l].name);
+if(response.services[l].name!="background_cache"){
   app.services.items.push(lang.mixin({id: response.services[l].id}, lang.mixin({name: response.services[l].name})));
+	}
 	}
 	    		 var stateStore = new Memory({
         data: app.services
@@ -158,7 +180,7 @@ serviceRequest.then(
       var comboBox = new ComboBox({
         id: "serviceSelect",
         name: "services",
-				value:"background_cache",
+				value:"select service",
         store: stateStore
     }, "serviceSelect");
 		
@@ -180,6 +202,8 @@ for (var l=0, im=response.layers.length; l<im; l++){
         data: app.layers
     }); 
 		var box = dijit.byId("layerSelect");
+		box.store.close;
+		box.value="select layer"
 box.store=layerStore;
    
 		}, function(error) {
