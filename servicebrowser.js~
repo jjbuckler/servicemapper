@@ -16,7 +16,8 @@ require([
 "dojo/query",	
   "dojo/on" ,
   "dojo/dom-construct", 
-  "dojo/_base/lang", 
+  "dojo/_base/lang",
+"dojo/_base/array",
   "dojo/on", 
   "dojo/dom-class",
   "dojo/_base/json", 
@@ -43,6 +44,7 @@ require([
   "dojo/request",
   "esri/map",
   "esri/dijit/Scalebar",
+	 "esri/dijit/Legend",
   "esri/geometry/Extent",
   "esri/tasks/identify",
   "esri/dijit/Print",
@@ -51,6 +53,8 @@ require([
 	 "esri/dijit/InfoWindow",
 	"esri/symbols/SimpleMarkerSymbol",
 	"esri/symbols/SimpleLineSymbol",
+	"esri/layers/FeatureLayer",
+    "esri/InfoTemplate",
 		"dijit/layout/TabContainer",
 		 "esri/tasks/identify",
 		 "esri/request",
@@ -59,36 +63,92 @@ require([
 		 "dojo/request/xhr",
   "dojo/domReady!"
  ],
-   function(dom, query,  on,  domConstruct, lang, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
-	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Extent, Identify, Print, 
-	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
+   function(dom, query,  on,  domConstruct, lang,arrayUtils, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
+	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, Print, 
+	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
+		parser.parse();
+			var ext = new esri.geometry.Extent({
+			"xmin" : -2500000,
+			"ymin" : 130000,
+			"xmax" : 2400000,
+			"ymax" : 3700000,
+			"spatialReference" : {
+				"wkid" : 102039
+			}
+		});
+var infoWindow = new esri.dijit.InfoWindow({
+			anchor : esri.dijit.InfoWindow.ANCHOR_LOWERRIGHT
+		}, dojo.create("div"));
+
+	infoWindow.startup();
+ var template = new InfoTemplate();
+      template.setTitle("<b>${qAddress}</b>");
+      template.setContent("$("+ app.varName + ")");
+    //  template.setContent(getTextContent);
+	app.map = new esri.Map("map", {
+			extent : ext,
+			sliderStyle : "small",
+			showAttribution : false,
+			logo : false,
+			navigationMode : "classic"
+		});
+		
+					 var legendDijit = new Legend({
+            map: app.map
+          }, "legendDiv");
+          legendDijit.startup();
+					
+					//var legendDijit
+					 app.map.on("layer-add", function (evt) {
+					 console.log("here");
+      });
+
+        
+    
+						app.tiled = new esri.layers.ArcGISTiledMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/background_cache/MapServer", {
+				"id" : "background"
+			});
+			app.map.addLayer(app.tiled);
+		
+
+				   var lcomboBox = new ComboBox({
+        id: "layerSelect",
+        name: "layers",
+				value:"--select--",
+				style:{width:"450px"}
+    }, "layerSelect")
 		
 		
-				/*	 var infoWindow = new esri.dijit.InfoWindow({
-															anchor: esri.dijit.InfoWindow.ANCHOR_LOWERRIGHT
-															}, dojo.create("div"));
-          
-													 
-						infoWindow.startup(); 
-				
-					app.map = new esri.Map("map", {   
-								sliderStyle: "small",
-								showAttribution: false,
-								logo: false
-					}); */
-			/*get the main service list	*/	
-			//esriConfig.defaults.io.alwaysUseProxy = true;
-		//esri.config.defaults.io.proxyUrl = "http://gis.ers.usda.gov/DotNet/proxy.ashx"
-	/*				  var servicesRequest = 
-		esriRequest({
-      "url": "http://gis.ers.usda.gov/arcgis/rest/services",
-      "content": {
-        "f": "json"
-      },
-      "callbackParamName": "callback"
-    });
-    		servicesRequest.then(main_servicesSucceeded, main_servicesFailed); */
+		lcomboBox.on("change", function(event){
+		//console.log(event);
+		var id = lcomboBox.item.id;
+		app.varName = lcomboBox.value;
+		sName= dijit.byId("serviceSelect").item.name;
+		      var featureLayer = new FeatureLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer/" + id, {
+					id:"flayer",
+          mode: FeatureLayer.MODE_SNAPSHOT,
+          outFields: ["*"],
+          infoTemplate: template
+        });
+				console.log(app.map.graphicsLayerIds);
+				console.log(app.map.layerIds);
+			//	console.log(app.map.getGraphicLayer("flayer"));
+				if(app.map.graphicsLayerIds.indexOf("flayer")==-1){
+					app.map.addLayer(featureLayer,{"id": "flayer"});
+					dijit.byId("legendDiv").refresh();
+				}
+				else{
+		app.map.removeLayer(app.map.getLayer("flayer"))
+		app.map.addLayer(featureLayer,{"id": "flayer"});
+			//legendDijit.refresh();
+		}
+		});
+		lcomboBox.startup();
+		
+		
+		
+		
 app.services = {items:[]}
     var serviceRequest = esri.request({
   url: "http://gis.ers.usda.gov/arcgis/rest/services",
@@ -102,9 +162,10 @@ serviceRequest.then(
   	 for (var l=0, im=response.services.length; l<im; l++){
 		// console.log(response.services[l].name);
 //app.services.push(response.services[l].name);
+if(response.services[l].name!="background_cache"){
   app.services.items.push(lang.mixin({id: response.services[l].id}, lang.mixin({name: response.services[l].name})));
 	}
-	console.log(app.services);
+	}
 	    		 var stateStore = new Memory({
         data: app.services
     }); 
@@ -112,7 +173,7 @@ serviceRequest.then(
       var comboBox = new ComboBox({
         id: "serviceSelect",
         name: "services",
-				value:"background_cache",
+				value:"select service",
         store: stateStore
     }, "serviceSelect");
 		
@@ -127,18 +188,17 @@ serviceRequest.then(
 });
 		layersRequest.then(function(response){
 //		console.log(response);
-for (var l=0, im=response.services.length; l<im; l++){
-	 app.layers.items.push(lang.mixin({id: response.services[l].id}, lang.mixin({name: response.services[l].name})));
+for (var l=0, im=response.layers.length; l<im; l++){
+	 app.layers.items.push(lang.mixin({id: response.layers[l].id}, lang.mixin({name: response.layers[l].name})));
 }		
 		 var layerStore = new Memory({
         data: app.layers
     }); 
-
-      var comboBox = new ComboBox({
-        id: "layerSelect",
-        name: "layers",
-        store: stateStore
-    }, "layerSelect").startup();
+		var box = dijit.byId("layerSelect");
+		box.store.close;
+		box.value="select layer"
+box.store=layerStore;
+   
 		}, function(error) {
 		console.log("Error: ", error.message);
 		});

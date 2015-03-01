@@ -54,7 +54,7 @@ require([
 	"esri/symbols/SimpleMarkerSymbol",
 	"esri/symbols/SimpleLineSymbol",
 	"esri/layers/FeatureLayer",
-        "esri/InfoTemplate",
+    "esri/InfoTemplate",
 		"dijit/layout/TabContainer",
 		 "esri/tasks/identify",
 		 "esri/request",
@@ -65,7 +65,7 @@ require([
  ],
    function(dom, query,  on,  domConstruct, lang,arrayUtils, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
 	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, Print, 
-	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, infoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
+	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
 		parser.parse();
 			var ext = new esri.geometry.Extent({
@@ -82,7 +82,10 @@ var infoWindow = new esri.dijit.InfoWindow({
 		}, dojo.create("div"));
 
 	infoWindow.startup();
-
+ var template = new InfoTemplate();
+      template.setTitle("<b>${qAddress}</b>");
+      template.setContent("$("+ app.varName + ")");
+    //  template.setContent(getTextContent);
 	app.map = new esri.Map("map", {
 			extent : ext,
 			sliderStyle : "small",
@@ -99,17 +102,6 @@ var infoWindow = new esri.dijit.InfoWindow({
 					//var legendDijit
 					 app.map.on("layer-add", function (evt) {
 					 console.log("here");
-       /* var layerInfo = arrayUtils.map(evt.layers, function (layer, index) {
-          return {layer:layer.layer, title:layer.layer.name};
-        });
-				console.log(layerInfo);
-        if (layerInfo.length > 0) {
-         var legendDijit = new Legend({
-            map: app.map,
-            layerInfos: layerInfo
-          }, "legendDiv");
-          legendDijit.startup();
-        } */
       });
 
         
@@ -131,12 +123,13 @@ var infoWindow = new esri.dijit.InfoWindow({
 		lcomboBox.on("change", function(event){
 		//console.log(event);
 		var id = lcomboBox.item.id;
-		var sName= dijit.byId("serviceSelect").item.name;
+		app.varName = lcomboBox.value;
+		sName= dijit.byId("serviceSelect").item.name;
 		      var featureLayer = new FeatureLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer/" + id, {
 					id:"flayer",
           mode: FeatureLayer.MODE_SNAPSHOT,
           outFields: ["*"],
-          infoTemplate: infoTemplate
+          infoTemplate: template
         });
 				console.log(app.map.graphicsLayerIds);
 				console.log(app.map.layerIds);
