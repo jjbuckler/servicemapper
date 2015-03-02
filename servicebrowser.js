@@ -83,8 +83,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 
 	infoWindow.startup();
  var template = new InfoTemplate();
-      template.setTitle("<b>${qAddress}</b>");
-      template.setContent("$("+ app.varName + ")");
+
     //  template.setContent(getTextContent);
 	app.map = new esri.Map("map", {
 			extent : ext,
@@ -124,6 +123,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 		//console.log(event);
 		var id = lcomboBox.item.id;
 		app.varName = lcomboBox.value;
+		console.log(app.varName)
 		sName= dijit.byId("serviceSelect").item.name;
 		      var featureLayer = new FeatureLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer/" + id, {
 					id:"flayer",
@@ -131,6 +131,9 @@ var infoWindow = new esri.dijit.InfoWindow({
           outFields: ["*"],
           infoTemplate: template
         });
+              template.setTitle("<b>${County},${State}</b>");
+     
+      template.setContent(app.varName + ": ${LACCESS_POP10}");
 				console.log(app.map.graphicsLayerIds);
 				console.log(app.map.layerIds);
 			//	console.log(app.map.getGraphicLayer("flayer"));
