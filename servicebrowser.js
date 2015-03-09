@@ -132,8 +132,9 @@ var infoWindow = new esri.dijit.InfoWindow({
           infoTemplate: template
         });
               template.setTitle("<b>${County},${State}</b>");
-     
-      template.setContent(app.varName + ": ${LACCESS_POP10}");
+     var valVar= "${description}"
+		 console.log(valVar);
+      template.setContent(app.varName + ": ${" + app.fields[id] + "}");
 				console.log(app.map.graphicsLayerIds);
 				console.log(app.map.layerIds);
 			//	console.log(app.map.getGraphicLayer("flayer"));
@@ -184,16 +185,19 @@ if(response.services[l].name!="background_cache"){
 		
 		app.layers = {items:[]}
     var layersRequest = esri.request({
-  url: "http://gis.ers.usda.gov/arcgis/rest/services/" + this.value + "/MapServer",
+  url: "http://gis.ers.usda.gov/arcgis/rest/services/" + this.value + "/MapServer/layers",
   content: { f: "json" },
   handleAs: "json",
   callbackParamName: "callback"
 });
 		layersRequest.then(function(response){
 //		console.log(response);
+app.fields=[]
+
 for (var l=0, im=response.layers.length; l<im; l++){
 	 app.layers.items.push(lang.mixin({id: response.layers[l].id}, lang.mixin({name: response.layers[l].name})));
-}		
+app.fields.push(response.layers[l].description);
+	 }		
 		 var layerStore = new Memory({
         data: app.layers
     }); 
