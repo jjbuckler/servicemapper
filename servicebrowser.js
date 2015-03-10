@@ -77,6 +77,15 @@ require([
 				"wkid" : 102039
 			}
 		});
+		
+		    var refBox = new CheckBox({
+        name: "refSelect",
+        value: "agreed",
+        checked: false,
+        onChange: function(b){ alert('onChange called with parameter = ' + b + ', and widget value = ' + this.get('value') ); }
+    }, "refSelect")
+    refBox.startup();
+    
 var infoWindow = new esri.dijit.InfoWindow({
 			anchor : esri.dijit.InfoWindow.ANCHOR_LOWERRIGHT
 		}, dojo.create("div"));

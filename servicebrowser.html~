@@ -71,8 +71,6 @@ left:0px;
  data-dojo-props="region:'top'">
 <input id="serviceSelect" />
 <input id="layerSelect" visible="false"/>
-<input id="refSelect" visible="true"/>
-<label>Show Reference Layer</label>
 </div>
  <div id="rightPane"
        data-dojo-type="dijit/layout/ContentPane"
