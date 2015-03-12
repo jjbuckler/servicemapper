@@ -80,12 +80,26 @@ require([
 		
 		    var refBox = new CheckBox({
         name: "refSelect",
-        value: "agreed",
+        value: "yes",
         checked: false,
-        onChange: function(b){ alert('onChange called with parameter = ' + b + ', and widget value = ' + this.get('value') ); }
     }, "refSelect")
-    refBox.startup();
-    
+   var refLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/reference2/MapServer", {
+			"id" : "refLayer"
+		});
+		refBox.on("change", function(b){
+		
+		if(b){
+		
+		app.map.addLayer(refLayer);
+		}
+		else{
+		app.map.removeLayer(refLayer);
+		}
+
+		
+		});
+		
+     refBox.startup();
 var infoWindow = new esri.dijit.InfoWindow({
 			anchor : esri.dijit.InfoWindow.ANCHOR_LOWERRIGHT
 		}, dojo.create("div"));
@@ -114,7 +128,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 
         
     
-						app.tiled = new esri.layers.ArcGISTiledMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/background_cache/MapServer", {
+						app.tiled = new esri.layers.ArcGISTiledMapServiceLayer("http://arcgis-gisdevtest-1606186582.us-east-1.elb.amazonaws.com/arcgis/rest/services/background_cache/MapServer", {
 				"id" : "background"
 			});
 			app.map.addLayer(app.tiled);
@@ -134,7 +148,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 		app.varName = lcomboBox.value;
 		console.log(app.varName)
 		sName= dijit.byId("serviceSelect").item.name;
-		      var featureLayer = new FeatureLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer/" + id, {
+		      var featureLayer = new FeatureLayer("http://arcgis-gisdevtest-1606186582.us-east-1.elb.amazonaws.com/arcgis/rest/services/" + sName + "/MapServer/" + id, {
 					id:"flayer",
           mode: FeatureLayer.MODE_SNAPSHOT,
           outFields: ["*"],
@@ -148,7 +162,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 				console.log(app.map.layerIds);
 			//	console.log(app.map.getGraphicLayer("flayer"));
 				if(app.map.graphicsLayerIds.indexOf("flayer")==-1){
-					app.map.addLayer(featureLayer,{"id": "flayer"});
+					app.map.addLayer(featureLayer,{"id": "flayer"},1);
 					dijit.byId("legendDiv").refresh();
 				}
 				else{
@@ -164,7 +178,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 		
 app.services = {items:[]}
     var serviceRequest = esri.request({
-  url: "http://gis.ers.usda.gov/arcgis/rest/services",
+  url: "http://arcgis-gisdevtest-1606186582.us-east-1.elb.amazonaws.com/arcgis/rest/services",
   content: { f: "json" },
   handleAs: "json",
   callbackParamName: "callback"
@@ -194,7 +208,7 @@ if(response.services[l].name!="background_cache"){
 		
 		app.layers = {items:[]}
     var layersRequest = esri.request({
-  url: "http://gis.ers.usda.gov/arcgis/rest/services/" + this.value + "/MapServer/layers",
+  url: "http://arcgis-gisdevtest-1606186582.us-east-1.elb.amazonaws.com/arcgis/rest/services/" + this.value + "/MapServer/layers",
   content: { f: "json" },
   handleAs: "json",
   callbackParamName: "callback"
