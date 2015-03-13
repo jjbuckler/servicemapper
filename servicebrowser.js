@@ -128,7 +128,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 
         
     
-						app.tiled = new esri.layers.ArcGISTiledMapServiceLayer("http://arcgis-gisdevtest-1606186582.us-east-1.elb.amazonaws.com/arcgis/rest/services/background_cache/MapServer", {
+						app.tiled = new esri.layers.ArcGISTiledMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/background_cache/MapServer", {
 				"id" : "background"
 			});
 			app.map.addLayer(app.tiled);
@@ -148,28 +148,33 @@ var infoWindow = new esri.dijit.InfoWindow({
 		app.varName = lcomboBox.value;
 		console.log(app.varName)
 		sName= dijit.byId("serviceSelect").item.name;
-		      var featureLayer = new FeatureLayer("http://arcgis-gisdevtest-1606186582.us-east-1.elb.amazonaws.com/arcgis/rest/services/" + sName + "/MapServer/" + id, {
+		var dataLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer", {
+			id : "dataLayer",
+			infoTemplates: template
+		});
+		dataLayer.setVisibleLayers([id]);
+				    /*  var featureLayer = new FeatureLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer/" + id, {
 					id:"flayer",
           mode: FeatureLayer.MODE_SNAPSHOT,
           outFields: ["*"],
           infoTemplate: template
-        });
+        }); */
               template.setTitle("<b>${County},${State}</b>");
      var valVar= "${description}"
 		 console.log(valVar);
       template.setContent(app.varName + ": ${" + app.fields[id] + "}");
-				console.log(app.map.graphicsLayerIds);
-				console.log(app.map.layerIds);
+			//	console.log(app.map.graphicsLayerIds);
+			//	console.log(app.map.layerIds);
 			//	console.log(app.map.getGraphicLayer("flayer"));
-				if(app.map.graphicsLayerIds.indexOf("flayer")==-1){
-					app.map.addLayer(featureLayer,{"id": "flayer"},1);
+			if(app.map.layerIds.indexOf("dataLayer")==-1){
+					app.map.addLayer(dataLayer,1);
 					dijit.byId("legendDiv").refresh();
 				}
 				else{
-		app.map.removeLayer(app.map.getLayer("flayer"))
-		app.map.addLayer(featureLayer,{"id": "flayer"});
+		app.map.removeLayer(app.map.getLayer("dataLayer"))
+		app.map.addLayer(dataLayer,1);
 			//legendDijit.refresh();
-		}
+		} 
 		});
 		lcomboBox.startup();
 		
@@ -178,7 +183,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 		
 app.services = {items:[]}
     var serviceRequest = esri.request({
-  url: "http://arcgis-gisdevtest-1606186582.us-east-1.elb.amazonaws.com/arcgis/rest/services",
+  url: "http://gis.ers.usda.gov/arcgis/rest/services",
   content: { f: "json" },
   handleAs: "json",
   callbackParamName: "callback"
@@ -208,7 +213,7 @@ if(response.services[l].name!="background_cache"){
 		
 		app.layers = {items:[]}
     var layersRequest = esri.request({
-  url: "http://arcgis-gisdevtest-1606186582.us-east-1.elb.amazonaws.com/arcgis/rest/services/" + this.value + "/MapServer/layers",
+  url: "http://gis.ers.usda.gov/arcgis/rest/services/" + this.value + "/MapServer/layers",
   content: { f: "json" },
   handleAs: "json",
   callbackParamName: "callback"
@@ -225,8 +230,10 @@ app.fields.push(response.layers[l].description);
         data: app.layers
     }); 
 		var box = dijit.byId("layerSelect");
+	//	box.store.clear
 		box.store.close;
 		box.value="select layer"
+		box.reset();
 box.store=layerStore;
    
 		}, function(error) {

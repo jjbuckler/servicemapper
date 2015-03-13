@@ -79,12 +79,27 @@ require([
 		});
 		
 		    var refBox = new CheckBox({
-        name: "refLayer",
-        value: "agreed",
+        name: "refSelect",
+        value: "yes",
         checked: false,
-        onChange: function(b){ alert('onChange called with parameter = ' + b + ', and widget value = ' + this.get('value') ); }
-    }, "refSelect").startup();
-    
+    }, "refSelect")
+   var refLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/reference2/MapServer", {
+			"id" : "refLayer"
+		});
+		refBox.on("change", function(b){
+		
+		if(b){
+		
+		app.map.addLayer(refLayer);
+		}
+		else{
+		app.map.removeLayer(refLayer);
+		}
+
+		
+		});
+		
+     refBox.startup();
 var infoWindow = new esri.dijit.InfoWindow({
 			anchor : esri.dijit.InfoWindow.ANCHOR_LOWERRIGHT
 		}, dojo.create("div"));
@@ -133,28 +148,33 @@ var infoWindow = new esri.dijit.InfoWindow({
 		app.varName = lcomboBox.value;
 		console.log(app.varName)
 		sName= dijit.byId("serviceSelect").item.name;
-		      var featureLayer = new FeatureLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer/" + id, {
+		var dataLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer", {
+			id : "dataLayer",
+			infoTemplates: template
+		});
+		dataLayer.setVisibleLayers([id]);
+				    /*  var featureLayer = new FeatureLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer/" + id, {
 					id:"flayer",
           mode: FeatureLayer.MODE_SNAPSHOT,
           outFields: ["*"],
           infoTemplate: template
-        });
+        }); */
               template.setTitle("<b>${County},${State}</b>");
      var valVar= "${description}"
 		 console.log(valVar);
       template.setContent(app.varName + ": ${" + app.fields[id] + "}");
-				console.log(app.map.graphicsLayerIds);
-				console.log(app.map.layerIds);
+			//	console.log(app.map.graphicsLayerIds);
+			//	console.log(app.map.layerIds);
 			//	console.log(app.map.getGraphicLayer("flayer"));
-				if(app.map.graphicsLayerIds.indexOf("flayer")==-1){
-					app.map.addLayer(featureLayer,{"id": "flayer"});
+			if(app.map.layerIds.indexOf("dataLayer")==-1){
+					app.map.addLayer(dataLayer,1);
 					dijit.byId("legendDiv").refresh();
 				}
 				else{
-		app.map.removeLayer(app.map.getLayer("flayer"))
-		app.map.addLayer(featureLayer,{"id": "flayer"});
+		app.map.removeLayer(app.map.getLayer("dataLayer"))
+		app.map.addLayer(dataLayer,1);
 			//legendDijit.refresh();
-		}
+		} 
 		});
 		lcomboBox.startup();
 		
@@ -210,6 +230,7 @@ app.fields.push(response.layers[l].description);
         data: app.layers
     }); 
 		var box = dijit.byId("layerSelect");
+		box.store.clear;
 		box.store.close;
 		box.value="select layer"
 box.store=layerStore;
