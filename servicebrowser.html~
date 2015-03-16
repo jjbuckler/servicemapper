@@ -71,6 +71,8 @@ left:0px;
  data-dojo-props="region:'top'">
 <input id="serviceSelect" />
 <input id="layerSelect" visible="false"/>
+<input id="refSelect" visible="true"/>
+<label>Show Reference Layer</label>
 </div>
  <div id="rightPane"
        data-dojo-type="dijit/layout/ContentPane"
@@ -82,7 +84,7 @@ left:0px;
         <div id="legendDiv"></div>
       </div>
       <div data-dojo-type="dijit/layout/ContentPane"
-           data-dojo-props="title:'Pane 2'">
+           data-dojo-props="title:'Pane 2'"id="layerData">
         This pane could contain tools or additional content
       </div>
     </div>

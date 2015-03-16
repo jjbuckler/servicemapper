@@ -168,12 +168,15 @@ var infoWindow = new esri.dijit.InfoWindow({
 			//	console.log(app.map.getGraphicLayer("flayer"));
 			if(app.map.layerIds.indexOf("dataLayer")==-1){
 					app.map.addLayer(dataLayer,1);
+						console.log(app.serviceJson.layers[id].description)
 					dijit.byId("legendDiv").refresh();
+						dijit.byId("layerData").set("content",app.serviceJson.layers[id].description);
 				}
 				else{
 		app.map.removeLayer(app.map.getLayer("dataLayer"))
 		app.map.addLayer(dataLayer,1);
-			//legendDijit.refresh();
+	
+		console.log(app.serviceJson.layers[id].description)	//legendDijit.refresh();
 		} 
 		});
 		lcomboBox.startup();
@@ -220,6 +223,7 @@ if(response.services[l].name!="background_cache"){
 });
 		layersRequest.then(function(response){
 //		console.log(response);
+app.serviceJson = response;
 app.fields=[]
 
 for (var l=0, im=response.layers.length; l<im; l++){
