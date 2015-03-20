@@ -1,4 +1,5 @@
 var tItem;
+var app=[];
 var printList;
 var services=[];
 var serviceTxt;
@@ -18,6 +19,7 @@ require([
   "dojo/dom-construct", 
   "dojo/_base/lang",
 "dojo/_base/array",
+"dojo/promise/all",
   "dojo/on", 
   "dojo/dom-class",
   "dojo/_base/json", 
@@ -28,6 +30,8 @@ require([
   "dijit/layout/AccordionContainer", 
   "dijit/TitlePane", 
   "dijit/form/CheckBox", 
+  "dijit/form/TextBox",
+  "dijit/form/Button",
   "dijit/Menu",
 	"dijit/layout/LinkPane",
   "dijit/MenuItem",
@@ -63,7 +67,7 @@ require([
 		 "dojo/request/xhr",
   "dojo/domReady!"
  ],
-   function(dom, query,  on,  domConstruct, lang,arrayUtils, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
+   function(dom, query,  on,  domConstruct, lang,arrayUtils, all , on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, TextBox, Button, Menu, LinkPane, MenuItem,
 	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, Print, 
 	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
@@ -77,7 +81,32 @@ require([
 				"wkid" : 102039
 			}
 		});
-		
+	    var myButton = new Button({
+        label: "Search",
+    }, "sButton")
+//});
+myButton.on("click", function(evt){
+
+var promises2;
+var req2 = [];
+app.count = 0
+for (var l = 0, im = app.Services.length; l < im; l++) {
+var requestHandle2 = esriRequest({
+"url" : "http://gis.ers.usda.gov/arcgis/rest/services/" + app.Services[l] + "/MapServer/layers",
+"content" : {
+"f" : "json",
+"svc" : app.Services[l]
+},
+"callbackParamName" : "callback"
+});
+req2.push(requestHandle2);
+}
+promises2 = all(req2)
+promises2.then(requestSucceeded, requestFailed)
+
+});
+
+		myButton.startup();
 		    var refBox = new CheckBox({
         name: "refSelect",
         value: "yes",
@@ -170,7 +199,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 					app.map.addLayer(dataLayer,1);
 						console.log(app.serviceJson.layers[id].description)
 					dijit.byId("legendDiv").refresh();
-						dijit.byId("layerData").content(app.serviceJson.layers[id].description);
+						dijit.byId("layerData").set("content",app.serviceJson.layers[id].description);
 				}
 				else{
 		app.map.removeLayer(app.map.getLayer("dataLayer"))
@@ -193,7 +222,8 @@ app.services = {items:[]}
 });
 serviceRequest.then(
   function(response) {
-	
+	app.Services=response;
+	console.log(app.Services);
   	 for (var l=0, im=response.services.length; l<im; l++){
 		// console.log(response.services[l].name);
 //app.services.push(response.services[l].name);
@@ -253,5 +283,13 @@ box.store=layerStore;
 }, function(error) {
     console.log("Error: ", error.message);
 });
+function requestSucceeded(response){
 
+console.log(response);
+
+
+}
+function requestFailed(){
+
+}
 });
