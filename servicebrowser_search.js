@@ -90,12 +90,13 @@ myButton.on("click", function(evt){
 var promises2;
 var req2 = [];
 app.count = 0
-for (var l = 0, im = app.Services.length; l < im; l++) {
+console.log(app.Services)
+for (var l = 0, im = app.Services.services.length; l < im; l++) {
 var requestHandle2 = esriRequest({
-"url" : "http://gis.ers.usda.gov/arcgis/rest/services/" + app.Services[l] + "/MapServer/layers",
+"url" : "http://gis.ers.usda.gov/arcgis/rest/services/" + app.Services.services[l].name + "/MapServer/layers",
 "content" : {
 "f" : "json",
-"svc" : app.Services[l]
+"svc" : app.Services.services[l]
 },
 "callbackParamName" : "callback"
 });
@@ -223,7 +224,7 @@ app.services = {items:[]}
 serviceRequest.then(
   function(response) {
 	app.Services=response;
-	console.log(app.Services);
+	console.log(app.Services.services);
   	 for (var l=0, im=response.services.length; l<im; l++){
 		// console.log(response.services[l].name);
 //app.services.push(response.services[l].name);
@@ -284,10 +285,18 @@ box.store=layerStore;
     console.log("Error: ", error.message);
 });
 function requestSucceeded(response){
+	var rslt=[]
+	console.log(response)
+for (l=0;l<response.length;l++){
+		for (r=0;r<response[l].layers.length;r++){
+			if (response[l].layers[r].name.contains(dijit.byId("search").value)){
+			rslt.push(response[l].layers[r])
+		}
+		}
+	
+}
 
-console.log(response);
-
-
+console.log(rslt)
 }
 function requestFailed(){
 
