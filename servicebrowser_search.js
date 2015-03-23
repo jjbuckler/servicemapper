@@ -163,7 +163,7 @@ var infoWindow = new esri.dijit.InfoWindow({
 			});
 			app.map.addLayer(app.tiled);
 		
-
+  
 				   var lcomboBox = new ComboBox({
         id: "layerSelect",
         name: "layers",
@@ -285,18 +285,33 @@ box.store=layerStore;
     console.log("Error: ", error.message);
 });
 function requestSucceeded(response){
-	var rslt=[]
-	console.log(response)
+var rslt={items:[]}
+	console.log(app.Services.services)
 for (l=0;l<response.length;l++){
 		for (r=0;r<response[l].layers.length;r++){
 			if (response[l].layers[r].name.contains(dijit.byId("search").value)){
-			rslt.push(response[l].layers[r])
+				 rslt.items.push(lang.mixin({service: app.Services.services[l].name}, lang.mixin({layer: response[l].layers[r].name}),lang.mixin({layerid: response[l].layers[r].id})));
+			//rslt.push(response[l].layers[r])
 		}
 		}
 	
 }
-
-console.log(rslt)
+var results={items:[]}
+for (s=0;s<rslt.items.length;s++){
+	//console.log(rslt[s].layer)
+	results.items.push(rslt.items[s].layer)
+}
+console.log(results)
+	 var layerStore = new Memory({
+        data: results.items
+    });
+	var box = dijit.byId("layerSelect");
+	//	box.store.clear
+		//box.store.close;
+		box.value="select layer"
+		box.reset();
+box.store=layerStore;
+//console.log(rslt)
 }
 function requestFailed(){
 
