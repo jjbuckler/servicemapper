@@ -288,11 +288,15 @@ box.set("value","Browse this service");
 });
 function requestSucceeded(response){
 var rslt={items:[]}
+console.log(response);
 	console.log(app.Services.services)
-for (l=0;l<response.length;l++){
+for  (l=0;l<response.length;l++){
 		for (r=0;r<response[l].layers.length;r++){
-		var rm= response[l].layers[r].name.toLowerCase();
-			if (rm.indexOf(dijit.byId("search").value.toLowerCase())!=-1){
+		var nm= response[l].layers[r].name;
+     console.log(nm);
+			if (nm.indexOf(dijit.byId("search").value)== -1){
+			}
+			else{
 				 rslt.items.push(lang.mixin({service: app.Services.services[l].name}, lang.mixin({name: response[l].layers[r].name}),lang.mixin({id: response[l].layers[r].id})));
 			//rslt.push(response[l].layers[r])
 		}
@@ -305,8 +309,8 @@ console.log(rslt)
         data: rslt
     });
 	var box = dijit.byId("layerSelect");
-	//	box.store.clear
-		//box.store.close;
+		box.store.clear
+		box.store.close;
 	
 		box.reset();
 		box.set("value", rslt.items.length + " layers match");
