@@ -40,7 +40,7 @@ width:20%;
 }
 #layerchooser{
 width:80%;
-height:75px;
+height:95px;
 top:0px;
 left:0px;
 }
@@ -57,13 +57,16 @@ left:0px;
 <input id="serviceSelect" />
 <input id="layerSelect" visible="false" width="200px"/>
 <input id="refSelect" visible="true"/>
-<label>Show State/County Boundaries</label><br>
+<label>Show State/County Boundaries</label> 	 <a href="" id="lyrDownload">Download layer file</label><br>
 <label>or</label><br>
 <input type="text" name="search" value="search by keyword"
     data-dojo-type="dijit/form/TextBox"
     data-dojo-props="trim:true, propercase:false" id="search" />
 	<button id="sButton"  type="button"/>
+
+
 </div>
+	
  <div id="rightPane"
        data-dojo-type="dijit/layout/ContentPane"
        data-dojo-props="region:'right'">
@@ -87,7 +90,8 @@ left:0px;
        data-dojo-type="dijit/layout/ContentPane"
        data-dojo-props="region:'center'"
        style="overflow:hidden;">
-  </div>
+  </div><br>
+ 
 
 </div>
 

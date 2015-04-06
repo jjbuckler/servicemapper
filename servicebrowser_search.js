@@ -17,6 +17,7 @@ require([
 "dojo/query",	
   "dojo/on" ,
   "dojo/dom-construct", 
+	"dojo/dom-attr",
   "dojo/_base/lang",
 "dojo/_base/array",
 "dojo/promise/all",
@@ -67,7 +68,7 @@ require([
 		 "dojo/request/xhr",
   "dojo/domReady!"
  ],
-   function(dom, query,  on,  domConstruct, lang,arrayUtils, all , on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, TextBox, Button, Menu, LinkPane, MenuItem,
+   function(dom, query,  on,  domConstruct, domAttr, lang,arrayUtils, all , on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, TextBox, Button, Menu, LinkPane, MenuItem,
 	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, Print, 
 	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
@@ -206,6 +207,9 @@ var infoWindow = new esri.dijit.InfoWindow({
 				else{
 		app.map.removeLayer(app.map.getLayer("dataLayer"))
 		app.map.addLayer(dataLayer,1);
+		//var node= dom.byId("lyrDownload")
+		// domAttr.set(node, "href", "http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer?f=lyr&v=9.3");
+		//dom.byId("lyrDownload").set("href","http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer?f=lyr&v=9.3");
 	
 		console.log(app.serviceJson.layers[id].description)	//legendDijit.refresh();
 		} 
