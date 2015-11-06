@@ -6,6 +6,7 @@ var serviceTxt;
 var identifyTask;
 var lgdRequestHandle;
 var app=[];
+var classCnt;
 var flags ={};
 var title;
 var pntLayer;
@@ -17,7 +18,6 @@ require([
 "dojo/query",	
   "dojo/on" ,
   "dojo/dom-construct", 
-	"dojo/dom-attr",
   "dojo/_base/lang",
 "dojo/_base/array",
 "dojo/promise/all",
@@ -68,9 +68,8 @@ require([
 		 "dojo/request/xhr",
   "dojo/domReady!"
  ],
-   function(dom, query,  on,  domConstruct, domAttr, lang,arrayUtils, all , on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, TextBox, Button, Menu, LinkPane, MenuItem,
-	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, Print, 
-	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
+   function(dom, query,  on,  domConstruct, lang,arrayUtils, all , on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, TextBox, Button, Menu, LinkPane, MenuItem,
+	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, PrintTask, PrintTemplate, Print,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr){
 		var node
 		parser.parse();
 			var ext = new esri.geometry.Extent({
@@ -86,6 +85,16 @@ require([
         label: "Search",
     }, "sButton")
 //});
+	app.map = new esri.Map("map", {
+			extent : ext,
+			sliderStyle : "small",
+			showAttribution : false,
+			logo : false,
+			navigationMode : "classic"
+		});
+var printTemplate = ["png", "landscape", "portrait"];
+	app.printTool = "Printer/ExportWebMapDynamic";
+				app.printText = "http://www.ers.usda.gov/data-products/food-access-research-atlas/documentation.aspx";
 myButton.on("click", function(evt){
 
 var promises2;
@@ -130,7 +139,117 @@ promises2.then(requestSucceeded, requestFailed)
 		
 		});
 		
+		
      refBox.startup();
+		 
+	app.map.on("click", function () {
+		dijit.byId("printbtn").set('open', false);
+	});
+	
+	
+	
+	function showPrinting() {
+	//	esri.show(loading);
+	//	imgVis.className = "loadVisible";
+	//	pProg.className = "refreshVisibleP";
+	}
+
+	function hidePrinting() {
+	//	esri.hide(loading);
+	//	imgVis.className = "loadHidden";
+	//	pProg.className = "refreshHidden";
+	}
+
+	/* New version of the Print Interface for the user */
+	var menu = new DropDownMenu({
+			style : "display: none;"
+		});
+
+	var menuItem1 = new MenuItem({
+			label : "Image (png)",
+			onClick : function () {
+				if (!tItem) {
+					title = app.initialLayerName;
+				} else {
+					title = tItem[0].row.data.name.toString();
+				}
+				// This needs to change to map only, at some point
+				createPrintTask("MAP_ONLY", "png32");
+			}
+		});
+
+	menu.addChild(menuItem1);
+
+	var menuItem2 = new MenuItem({
+			label : "Landscape (pdf)",
+			onClick : function () {
+				if (!tItem) {
+					title = app.initialLayerName;
+				} else {
+
+					title = tItem[0].row.data.name.toString();
+
+				}
+				if (classCnt > 6){
+					//console.log("lots of classes");
+					createPrintTask("LandscapeLarge", "PDF", title);
+				}else{
+				createPrintTask("LandscapeComplex2", "PDF", title);
+				}
+			}
+		});
+
+	menu.addChild(menuItem2);
+
+	var menuItem3 = new MenuItem({
+			label : "Portrait (pdf)",
+			onClick : function () {
+				if (!tItem) {
+					title = app.initialLayerName;
+				} else {
+					title = tItem[0].row.data.name.toString();
+				}
+				if (classCnt > 6){
+					//console.log("lots of classes");
+					createPrintTask("PortraitLarge", "PDF", title);
+				}else{
+					createPrintTask("PortraitComplex2", "PDF", title);					
+				}
+
+			}
+		});
+
+	menu.addChild(menuItem3);
+
+	menu.startup();
+
+	var button = new dijit.form.DropDownButton({
+			id : "printbtn",
+			label : "Print",
+			dropDown : menu,
+			region: "top",
+			style: "float: right"
+		});
+
+	button.on('mouseout', function () {
+		menu.hide;
+	})
+
+	button.startup();
+
+	dom.byId("print").appendChild(button.domNode);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		 
 var infoWindow = new esri.dijit.InfoWindow({
 			anchor : esri.dijit.InfoWindow.ANCHOR_LOWERRIGHT
 		}, dojo.create("div"));
@@ -139,13 +258,7 @@ var infoWindow = new esri.dijit.InfoWindow({
  var template = new InfoTemplate();
 
     //  template.setContent(getTextContent);
-	app.map = new esri.Map("map", {
-			extent : ext,
-			sliderStyle : "small",
-			showAttribution : false,
-			logo : false,
-			navigationMode : "classic"
-		});
+
 		
 					 var legendDijit = new Legend({
             map: app.map
@@ -193,6 +306,14 @@ var infoWindow = new esri.dijit.InfoWindow({
         }); */
               template.setTitle("<b>${County},${State}</b>");
      var valVar= "${description}"
+		 
+		 
+		 
+		 var descT=JSON.parse(app.serviceJson.layers[id].description)
+		 
+		 console.log(descT);
+		 
+		 var desc='<p><b>' + descT["name"] + '</b><p>' + '<b> Definition: </b>' + descT["definition"] + '<p>' + '<b>Available years: </b>' + descT["availableYears"] + '<p><b>Level of geography: </b>' + descT["geographicLevel"]
 		 console.log(valVar);
      // template.setContent(app.varName + ": ${" + app.fields[id] + "}");
 			//	console.log(app.map.graphicsLayerIds);
@@ -202,14 +323,11 @@ var infoWindow = new esri.dijit.InfoWindow({
 					app.map.addLayer(dataLayer,1);
 						console.log(app.serviceJson.layers[id].description)
 					dijit.byId("legendDiv").refresh();
-						dijit.byId("layerData").set("content",app.serviceJson.layers[id].description);
+						dijit.byId("layerData").set("content",desc);
 				}
 				else{
 		app.map.removeLayer(app.map.getLayer("dataLayer"))
 		app.map.addLayer(dataLayer,1);
-		//var node= dom.byId("lyrDownload")
-		// domAttr.set(node, "href", "http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer?f=lyr&v=9.3");
-		//dom.byId("lyrDownload").set("href","http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer?f=lyr&v=9.3");
 	
 		console.log(app.serviceJson.layers[id].description)	//legendDijit.refresh();
 		} 
@@ -322,4 +440,113 @@ box.store=layerStore;
 function requestFailed(){
 
 }
+	/******************************Print Tool********************************************************/
+		
+	/* Print tool creation */
+	// this will need to be changed to add in
+	function createPrintTask(layout, format, title) { //input parameters set in dropdown print menu
+		var tpId = pntLayer;
+		if (layout == "MAP_ONLY") {
+			var template = new esri.tasks.PrintTemplate();
+			template.format = format;
+			template.layout = layout;
+			template.layoutOptions = {
+				"showAttribution" : false
+			}
+			template.exportOptions = {
+				width : 988,
+				height : 670,
+				dpi : 96
+			}
+		} else {
+			var txtVar = app.printText //"http://www.ers.usda.gov/data-products/food-access-research-atlas/documentation.aspx"; // THIS CAN BE A VARIABLE FROM THE CONFIG FILE
+			var template = new esri.tasks.PrintTemplate();
+			var legendLayer1 = new esri.tasks.LegendLayer();
+			legendLayer1.layerId = "currentLayer";
+			legendLayer1.subLayerIds = [tpId, app.SelLayerIndex];
+			template.format = format;
+			template.layout = layout;
+			template.layoutOptions = {
+				"titleText" : title,
+				"scalebarUnit" : "Miles",
+				"copyrightText" : "",
+				"legendLayers" : [legendLayer1],
+				"customTextElements" : [{
+						"documentationSrc" : txtVar
+					}
+				],
+				"showAttribution" : false
+			}
+			template.exportOptions = {
+				dpi : 300
+			}
+		}
+		template.preserveScale = true;
+		var params = new esri.tasks.PrintParameters();
+		params.map = app.map;
+		params.template = template;
+		if (layout == "USATriMap") { // This is not being used at the present time (alaska and hawaii insets)
+			printTask = new esri.tasks.PrintTask("http://gis.ers.usda.gov/arcgis/rest/services/Printer/Triapp.mapPrint/GPServer/AdvancedHighQualityPrinting");
+			//printTask = new esri.tasks.PrintTask("http://gis2.ers.usda.gov/arcgis/rest/services/Printer/TriMapPrint2/GPServer/AdvancedHighQualityPrinting");
+		} else {
+			//printTask = new esri.tasks.PrintTask("http://gis2.ers.usda.gov/arcgis/rest/services/Printer/ExportWebMap/GPServer/Export%20Web%20Map");
+		//	printTask = new esri.tasks.PrintTask(app.lSource + "Printer/ExportWebMapFoodAtlas/GPServer/Export%20Web%20Map");
+				//console.log("lSource: "+ app.lSource);
+			//	console.log("print tool: "+ app.printTool )
+				//printTask = new esri.tasks.PrintTask("http://arcgis-ersarcgis1031-1410776390.us-east-1.elb.amazonaws.com/arcgis/rest/services/" + app.printTool + "/GPServer/Export%20Web%20Map");
+				//printTask = new esri.tasks.PrintTask("http://arcgis-ersarcgis1031-1410776390.us-east-1.elb.amazonaws.com/arcgis/rest/services/" + app.printTool + "/GPServer/Export%20Web%20Map");
+				printTask = new esri.tasks.PrintTask("http://gis.ers.usda.gov/arcgis/rest/services/" + app.printTool + "/GPServer/Export%20Web%20Map");
+				//printTask = new esri.tasks.PrintTask(app.lSource + app.printTool + "/GPServer/Export%20Web%20Map");
+		}
+		//showLoading();  // took this line out, so that showLoading doesn't run loading text - present situation is a bit redundant, though
+		showPrinting();
+		printTask.execute(params, printResult, printTest);
+		printTask.on('complete', function () {
+		//	hideLoading();
+			hidePrinting();
+		})
+	}
+
+	function printTest(error) {
+		alert("There's a problem with the print tool. \nPlease try again later.");
+		console.log(error);
+	//	hideLoading();
+		hidePrinting();
+	}
+
+	function printResult(result) {
+		//alert (result.url);
+		if (result.url === "") {
+			alert("error");
+		}
+		var currentTime = new Date();
+		result.url += "?ts=" + currentTime.getTime();
+		//count = count + 1
+		//setTimeout(function(){alert("Hello")},10000);
+		var a = document.createElement('a');
+		var linkText = document.createTextNode("Click here to open printable map");
+		a.appendChild(linkText);
+		a.id = 'hyperL';
+		a.href = result.url;
+		a.target = "_blank";
+a.style="float:right";
+	//	document.body.appendChild(a);
+	dom.byId("layerchooser").appendChild(a);
+		document.getElementById('hyperL').className = '';
+		window.addEventListener('blur', function () {
+			if (a.hasChildNodes()) {
+				a.removeChild(linkText);
+			}
+		});
+	}
+
+	function printError(error) {
+		alert(error);
+	}
+
+
+	
+	
+	
+	
 });

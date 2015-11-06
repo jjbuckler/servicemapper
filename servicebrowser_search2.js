@@ -1,4 +1,5 @@
 var tItem;
+var app=[];
 var printList;
 var services=[];
 var serviceTxt;
@@ -16,8 +17,11 @@ require([
 "dojo/query",	
   "dojo/on" ,
   "dojo/dom-construct", 
+	"dojo/dom-attr",
+	"dojo/dom-style",
   "dojo/_base/lang",
 "dojo/_base/array",
+"dojo/promise/all",
   "dojo/on", 
   "dojo/dom-class",
   "dojo/_base/json", 
@@ -28,6 +32,8 @@ require([
   "dijit/layout/AccordionContainer", 
   "dijit/TitlePane", 
   "dijit/form/CheckBox", 
+  "dijit/form/TextBox",
+  "dijit/form/Button",
   "dijit/Menu",
 	"dijit/layout/LinkPane",
   "dijit/MenuItem",
@@ -61,12 +67,12 @@ require([
 		 "dojox/layout/FloatingPane",
 		 "dijit/form/ComboBox",
 		 "dojo/request/xhr",
-		 "application/bootstrapmap",
+		  "application/bootstrapmap",
   "dojo/domReady!"
  ],
-   function(dom, query,  on,  domConstruct, lang,arrayUtils, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, Menu, LinkPane, MenuItem,
+   function(dom, query,  on,  domConstruct, domAttr,domStyle,lang,arrayUtils, all , on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, TextBox, Button, Menu, LinkPane, MenuItem,
 	DropDownButton, DropDownMenu, DataGrid, EnhancedGrid,ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, Print, 
-	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr,BootstrapMap){
+	PrintTask, PrintTemplate,InfoWindow,SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate,TabContainer,identify,esriRquest,FloatingPane,ComboBox,xhr, BootstrapMap){
 		var node
 		parser.parse();
 			var ext = new esri.geometry.Extent({
@@ -78,7 +84,33 @@ require([
 				"wkid" : 102039
 			}
 		});
-		
+	    var myButton = new Button({
+        label: "Search",
+    }, "sButton")
+//});
+myButton.on("click", function(evt){
+
+var promises2;
+var req2 = [];
+app.count = 0
+console.log(app.Services)
+for (var l = 0, im = app.Services.services.length; l < im; l++) {
+var requestHandle2 = esriRequest({
+"url" : "http://gis.ers.usda.gov/arcgis/rest/services/" + app.Services.services[l].name + "/MapServer/layers",
+"content" : {
+"f" : "json",
+"svc" : app.Services.services[l]
+},
+"callbackParamName" : "callback"
+});
+req2.push(requestHandle2);
+}
+promises2 = all(req2)
+promises2.then(requestSucceeded, requestFailed)
+
+});
+
+		myButton.startup();
 		    var refBox = new CheckBox({
         name: "refSelect",
         value: "yes",
@@ -109,7 +141,7 @@ var infoWindow = new esri.dijit.InfoWindow({
  var template = new InfoTemplate();
 
     //  template.setContent(getTextContent);
-	app.map =BootstrapMap.create("map", {
+		app.map =BootstrapMap.create("map", {
 			extent : ext,
 			sliderStyle : "small",
 			showAttribution : false,
@@ -134,12 +166,12 @@ var infoWindow = new esri.dijit.InfoWindow({
 			});
 			app.map.addLayer(app.tiled);
 		
-
+  
 				   var lcomboBox = new ComboBox({
         id: "layerSelect",
         name: "layers",
-				value:"--select--",
 				style:{width:"450px"}
+		
     }, "layerSelect")
 		
 		
@@ -148,7 +180,8 @@ var infoWindow = new esri.dijit.InfoWindow({
 		var id = lcomboBox.item.id;
 		app.varName = lcomboBox.value;
 		console.log(app.varName)
-		sName= dijit.byId("serviceSelect").item.name;
+		console.log(lcomboBox.item.id);
+		sName= lcomboBox.item.service //dijit.byId("serviceSelect").item.name;
 		var dataLayer = new esri.layers.ArcGISDynamicMapServiceLayer("http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer", {
 			id : "dataLayer",
 			infoTemplates: template
@@ -160,10 +193,14 @@ var infoWindow = new esri.dijit.InfoWindow({
           outFields: ["*"],
           infoTemplate: template
         }); */
+									var node= dojo.byId("lyrDownload")
+			console.log(node);
+	 domAttr.set(node, "href", "http://gis.ers.usda.gov/arcgis/rest/services/" + sName + "/MapServer?f=lyr&v=9.3");
+	 domStyle.set(node, "display", "block");
               template.setTitle("<b>${County},${State}</b>");
      var valVar= "${description}"
 		 console.log(valVar);
-      template.setContent(app.varName + ": ${" + app.fields[id] + "}");
+     // template.setContent(app.varName + ": ${" + app.fields[id] + "}");
 			//	console.log(app.map.graphicsLayerIds);
 			//	console.log(app.map.layerIds);
 			//	console.log(app.map.getGraphicLayer("flayer"));
@@ -172,10 +209,12 @@ var infoWindow = new esri.dijit.InfoWindow({
 						console.log(app.serviceJson.layers[id].description)
 					dijit.byId("legendDiv").refresh();
 						dijit.byId("layerData").set("content",app.serviceJson.layers[id].description);
+		
 				}
 				else{
 		app.map.removeLayer(app.map.getLayer("dataLayer"))
 		app.map.addLayer(dataLayer,1);
+		
 	
 		console.log(app.serviceJson.layers[id].description)	//legendDijit.refresh();
 		} 
@@ -187,18 +226,19 @@ var infoWindow = new esri.dijit.InfoWindow({
 		
 app.services = {items:[]}
     var serviceRequest = esri.request({
-  url: "http://gis.ers.usda.gov/arcgis/rest/services/NASS2",
+  url: "http://gis.ers.usda.gov/arcgis/rest/services",
   content: { f: "json" },
   handleAs: "json",
   callbackParamName: "callback"
 });
 serviceRequest.then(
   function(response) {
-	
+	app.Services=response;
+	console.log(app.Services.services);
   	 for (var l=0, im=response.services.length; l<im; l++){
 		// console.log(response.services[l].name);
 //app.services.push(response.services[l].name);
-if(response.services[l].name!="background_cache"){
+if(response.services[l].name!="background_cache" && response.services[l].name!="ra_query"){
   app.services.items.push(lang.mixin({id: response.services[l].id}, lang.mixin({name: response.services[l].name})));
 	}
 	}
@@ -228,7 +268,7 @@ app.serviceJson = response;
 app.fields=[]
 
 for (var l=0, im=response.layers.length; l<im; l++){
-	 app.layers.items.push(lang.mixin({id: response.layers[l].id}, lang.mixin({name: response.layers[l].name})));
+	 app.layers.items.push(lang.mixin({id: response.layers[l].id}, lang.mixin({name: response.layers[l].name}),lang.mixin({service: dijit.byId("serviceSelect").item.name})));
 app.fields.push(response.layers[l].description);
 	 }		
 		 var layerStore = new Memory({
@@ -237,10 +277,11 @@ app.fields.push(response.layers[l].description);
 		var box = dijit.byId("layerSelect");
 	//	box.store.clear
 		box.store.close;
-		box.value="select layer"
-		box.reset();
+	
+	//	box.reset();
 box.store=layerStore;
-   
+box.set("value","Browse this service");
+   //	box.value="select layer"
 		}, function(error) {
 		console.log("Error: ", error.message);
 		});
@@ -254,5 +295,36 @@ box.store=layerStore;
 }, function(error) {
     console.log("Error: ", error.message);
 });
+function requestSucceeded(response){
+var rslt={items:[]}
+	console.log(app.Services.services)
+for (l=0;l<response.length;l++){
+		for (r=0;r<response[l].layers.length;r++){
+		var rm= response[l].layers[r].name.toLowerCase();
+			if (rm.indexOf(dijit.byId("search").value.toLowerCase())!=-1){
+				 rslt.items.push(lang.mixin({service: app.Services.services[l].name}, lang.mixin({name: response[l].layers[r].name}),lang.mixin({id: response[l].layers[r].id})));
+			//rslt.push(response[l].layers[r])
+		}
+		}
+	
+}
 
+console.log(rslt)
+	 var layerStore = new Memory({
+        data: rslt
+    });
+	var box = dijit.byId("layerSelect");
+	//	box.store.clear
+		//box.store.close;
+	
+		box.reset();
+		box.set("value", rslt.items.length + " layers match");
+		//box.value="search complete"	
+box.store=layerStore;
+
+//console.log(rslt)
+}
+function requestFailed(){
+
+}
 });

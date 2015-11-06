@@ -11,8 +11,8 @@
 
 
 	  <script src="http://js.arcgis.com/3.10/" type="text/javascript"></script>
-  <script src="servicebrowser_search.js" type="text/javascript"></script> 
-<title>ERS Service Browser</title>
+  <script src="servicebrowser.js" type="text/javascript"></script> 
+
     <style>
  html, body {
       height: 97%;
@@ -28,21 +28,36 @@ width:80%
 #ltab{
 }
 #leftPane{
-position:absolute;
 width:80%;
 }
   #legendPane {
       border: solid #97DCF2 1px;
     }
 #rightPane{
-position:absolute;
 width:20%;
 }
 #layerchooser{
-width:80%;
-height:75px;
+
+height:25px;
 top:0px;
 left:0px;
+}
+
+/* Change color of icons to match bar chart and selection symbol */
+.esriPopup.dark div.titleButton, 
+.esriPopup.dark div.titlePane .title,
+.esriPopup.dark div.actionsPane .action {
+  color: #A4CE67;
+}
+/* Additional customizations */
+.esriPopup.dark .esriPopupWrapper {
+  border: none;
+}
+.esriPopup .contentPane {
+  text-align: center;
+}
+.esriViewPopup .gallery {
+  margin: 0 auto;
 }
    </style>
 
@@ -52,22 +67,11 @@ left:0px;
      data-dojo-type="dijit/layout/BorderContainer"
      data-dojo-props="design:'headline', gutters:true"
      style="width: 100%; height: 100%; margin: 0;">
-<div id="layerchooser" data-dojo-type="dijit/layout/ContentPane"
+<div id="layerchooser"data-dojo-type="dijit/layout/ContentPane"
  data-dojo-props="region:'top'">
- <div id="print"  title="click for options to print or export" ></div>
 <input id="serviceSelect" />
-<input id="layerSelect" visible="false" width="200px"/>
-<input id="refSelect" visible="true"/>
-<label>Show State/County Boundaries</label><br>
-<label>or</label><br>
-<input type="text" name="search" value="search by keyword"
-    data-dojo-type="dijit/form/TextBox"
-    data-dojo-props="trim:true, propercase:false" id="search" />
-	<button id="sButton"  type="button"/>
-	
-				
+<input id="layerSelect" visible="false"/>
 </div>
-
  <div id="rightPane"
        data-dojo-type="dijit/layout/ContentPane"
        data-dojo-props="region:'right'">
@@ -78,8 +82,8 @@ left:0px;
         <div id="legendDiv"></div>
       </div>
       <div data-dojo-type="dijit/layout/ContentPane"
-           data-dojo-props="title:'Pane 2'"id="layerData">
-        
+           data-dojo-props="title:'Pane 2'">
+        This pane could contain tools or additional content
       </div>
     </div>
   </div
