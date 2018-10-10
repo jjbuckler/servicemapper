@@ -3,6 +3,7 @@
             height: 100%;
             width: 100%;
             font-family: Arial;
+
         }
 
         .top {
@@ -21,8 +22,9 @@
 
         .flex-header {
             display: flex;
+            width: 90%;
             flex-direction: row;
-            justify-content: space-evenly;
+            justify-content: space-around;
             align-items: center;
             flex: 1 auto;
         }
@@ -54,11 +56,17 @@
 
         .legendpane {
             height: 100%;
-            width: 20%;
+
             margin: auto
         }
 
         .appTitle {
             color: white;
+            align-items: center;
 
+
+        }
+
+        .form {
+            display: flex;
         }
