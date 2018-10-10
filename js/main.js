@@ -26,6 +26,7 @@ require([
         "dojo/_base/json",
         "dojo/_base/array",
         "dojo/string",
+        "application/bootstrapmap",
         "esri/request",
         "dojo/parser",
         "dijit/layout/AccordionContainer",
@@ -68,10 +69,10 @@ require([
         "dojo/request/xhr",
         "dojo/domReady!"
     ],
-    function (dom, query, on, domConstruct, lang, arrayUtils, all, on, domClass, dojoJson, array, dojoString, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, TextBox, Button, Menu, LinkPane, MenuItem,
+    function (dom, query, on, domConstruct, lang, arrayUtils, all, on, domClass, dojoJson, array, dojoString, BootstrapMap, esriRequest, parser, AccordionContainer, TitlePane, CheckBox, TextBox, Button, Menu, LinkPane, MenuItem,
         DropDownButton, DropDownMenu, DataGrid, EnhancedGrid, ContentPane, Memory, ObjectStore, ItemFileReadStore, ItemFileWriteStore, Deferred, request, map, Scalebar, Legend, Extent, Identify, PrintTask, PrintTemplate, Print, InfoWindow, SimpleMarkerSymbol, SimpleLineSymbol, FeatureLayer, InfoTemplate, TabContainer, identify, esriRquest, FloatingPane, ComboBox, xhr) {
-        var node
-        parser.parse();
+
+
         var ext = new esri.geometry.Extent({
             "xmin": -2500000,
             "ymin": 130000,
@@ -85,13 +86,14 @@ require([
             label: "Search",
         }, "sButton")
         //});
-        app.map = new esri.Map("map", {
+        app.map = BootstrapMap.create("map", {
             extent: ext,
             sliderStyle: "small",
             showAttribution: false,
             logo: false,
             navigationMode: "classic"
         });
+
         var printTemplate = ["png", "landscape", "portrait"];
         app.printTool = "Printer/ExportWebMapDynamic";
         app.printText = "http://www.ers.usda.gov/data-products/food-access-research-atlas/documentation.aspx";
